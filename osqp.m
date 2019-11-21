@@ -370,6 +370,7 @@ classdef osqp < handle
             defaultFloat = false;
             defaultLong = true;
             defaultFW = false;
+            defaultPrefix = '';
 
             addRequired(p, 'target_dir', @isstr);
             addParameter(p, 'project_type', defaultProject, ...
@@ -380,6 +381,7 @@ classdef osqp < handle
             addParameter(p, 'FLOAT', defaultFloat, @islogical);
             addParameter(p, 'LONG', defaultLong, @islogical);
             addParameter(p, 'force_rewrite', defaultFW, @islogical);
+            addParameter(p, 'prefix', defaultPrefix, @isstr);
 
             parse(p, target_dir, varargin{:});
 
@@ -427,6 +429,8 @@ classdef osqp < handle
                     end
                 end
             end
+
+            prefix = p.Results.prefix;
 
             % Import OSQP path
             [osqp_path,~,~] = fileparts(which('osqp.m'));
@@ -521,10 +525,10 @@ classdef osqp < handle
             fclose(fido);
 
             % Render workspace.h and workspace.c
-            work_hfile = fullfile(target_include_dir, 'workspace.h');
-            work_cfile = fullfile(target_src_dir, 'osqp', 'workspace.c');
+            work_hfile = fullfile(target_include_dir, strcat([prefix 'workspace.h']));
+            work_cfile = fullfile(target_src_dir, 'osqp', strcat([prefix 'workspace.c']));
             fprintf('Generating workspace.h/.c...\t\t\t\t\t\t');
-            render_workspace(work, work_hfile, work_cfile, embedded);
+            render_workspace(work, work_hfile, work_cfile, embedded, prefix);
             fprintf('[done]\n');
 
             % Create project
