@@ -228,7 +228,7 @@ fprintf(f, strcat(['qdldl_solver ', prefix, 'linsys_solver = ']));
 fprintf(f, '{QDLDL_SOLVER, &solve_linsys_qdldl, ');
 
 if embedded_flag ~= 1
-    fprintf(f, strcat(['&', prefix, 'update_linsys_solver_matrices_qdldl, &', prefix, 'update_linsys_solver_rho_vec_qdldl, ']));
+    fprintf(f, strcat(['&update_linsys_solver_matrices_qdldl, &update_linsys_solver_rho_vec_qdldl, ']));
 end
 
 fprintf(f, strcat(['&', prefix, 'linsys_solver_L, ', prefix, 'linsys_solver_Dinv, ', prefix, 'linsys_solver_P, ', prefix, 'linsys_solver_bp, ', prefix, 'linsys_solver_sol, ', prefix, 'linsys_solver_rho_inv_vec, ']));
@@ -283,7 +283,7 @@ function write_solution_src( f, n, m, prefix )
 fprintf(f, '// Define solution\n');
 fprintf(f, strcat(['c_float ', prefix, 'xsolution[%d];\n']), n);
 fprintf(f, strcat(['c_float ', prefix, 'ysolution[%d];\n\n']), m);
-fprintf(f, strcat(['OSQPSolution ', prefix, 'solution = {xsolution, ysolution};\n\n']));
+fprintf(f, strcat(['OSQPSolution ', prefix, 'solution = {', prefix, 'xsolution, ', prefix, 'ysolution};\n\n']));
 
 end
 
@@ -346,7 +346,7 @@ fprintf(f, strcat(['OSQPWorkspace ', prefix, 'workspace = {\n']));
 fprintf(f, strcat(['&', prefix, 'data, (LinSysSolver *)&', prefix, 'linsys_solver,\n']));
 fprintf(f, strcat([prefix, 'work_rho_vec, ', prefix, 'work_rho_inv_vec,\n']));
 if embedded_flag ~= 1
-    fprintf(f, 'work_constr_type,\n');
+    fprintf(f, strcat([prefix, 'work_constr_type,\n']));
 end
 fprintf(f, strcat([prefix, 'work_x,       ', prefix, 'work_y, ', prefix, 'work_z, ', prefix, 'work_xz_tilde,\n']));
 fprintf(f, strcat([prefix, 'work_x_prev,  ', prefix, 'work_z_prev,\n']));

@@ -118,16 +118,18 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_subdirectory (src/osqp)
 add_subdirectory (include)
 
+add_definitions(-DOSQP_WORKSPACE_H=\"${OSQP_PREFIX}workspace.h\")
+
 # Append the generated workspace files and qdldl files
 list (APPEND
       osqp_src
-      ${CMAKE_CURRENT_SOURCE_DIR}/src/osqp/workspace.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/osqp/${OSQP_PREFIX}workspace.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/osqp/qdldl.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/osqp/qdldl_interface.c
 )
 list (APPEND
       osqp_headers
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/workspace.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/${OSQP_PREFIX}workspace.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/qdldl.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/qdldl_types.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/qdldl_interface.h

@@ -552,7 +552,7 @@ classdef osqp < handle
 
             % Make mex interface to the generated code
             mex_cfile  = fullfile(files_to_generate_path, 'emosqp_mex.c');
-            make_emosqp(target_dir, mex_cfile, embedded, float_flag, long_flag);
+            make_emosqp(target_dir, mex_cfile, embedded, float_flag, long_flag, prefix);
 
             % Rename the mex file
             old_mexfile = ['emosqp_mex.', mexext];

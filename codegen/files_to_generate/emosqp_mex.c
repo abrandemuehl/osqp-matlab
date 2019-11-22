@@ -1,8 +1,12 @@
 #include <string.h>
 #include <mex.h>
 #include "osqp.h"
-#include "workspace.h"
 
+// Take advantage of https://gcc.gnu.org/onlinedocs/cpp/Computed-Includes.html
+#include OSQP_WORKSPACE_H
+
+
+#define workspace WORKSPACE
 
 
 /*********************************

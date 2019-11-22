@@ -1,4 +1,4 @@
-function make_emosqp(target_dir, mex_cfile, EMBEDDED_FLAG, FLOAT_FLAG, LONG_FLAG)
+function make_emosqp(target_dir, mex_cfile, EMBEDDED_FLAG, FLOAT_FLAG, LONG_FLAG, PREFIX_FLAG)
 % Matlab MEX makefile for code generated solver.
 
 
@@ -6,7 +6,9 @@ function make_emosqp(target_dir, mex_cfile, EMBEDDED_FLAG, FLOAT_FLAG, LONG_FLAG
 mex_cmd = sprintf('mex -O -silent');
 
 % Add arguments to mex compiler
-mexoptflags = '-DMATLAB';
+mexoptflags = strcat(['-DMATLAB -DOSQP_WORKSPACE_H=''\"', PREFIX_FLAG, 'workspace.h\"'' ', '-DWORKSPACE=', PREFIX_FLAG, 'workspace']);
+
+mexoptflags = strcat([mexoptflags ' COMPFLAGS=''$COMPFLAGS -Wall -Werror''']);
 
 % If running on linux, include the c99 option so GCC uses c99 to compile.
 % Otherwise it will throw errors about the comment style
@@ -23,6 +25,8 @@ cmake_args = sprintf('%s -DDFLOAT:BOOL=%s', cmake_args, FLOAT_FLAG);
 % Add long flag
 cmake_args = sprintf('%s -DDLONG:BOOL=%s', cmake_args, LONG_FLAG);
 
+% Add prefix
+cmake_args = sprintf('%s -DOSQP_PREFIX=%s', cmake_args, PREFIX_FLAG);
 
 % Generate osqp_configure.h file by running cmake
 current_dir = pwd;
