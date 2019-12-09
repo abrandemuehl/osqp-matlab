@@ -194,7 +194,7 @@ if ~isempty(scaling)
     write_vec_extern(f, scaling.Einv, strcat([prefix, 'Einvscaling']), 'c_float');
 end
 
-fprintf(f, 'extern OSQPScaling scaling;\n\n');
+fprintf(f, strcat(['extern OSQPScaling ', prefix, 'scaling;\n\n']));
 
 
 end
