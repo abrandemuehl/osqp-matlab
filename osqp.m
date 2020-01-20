@@ -204,6 +204,7 @@ classdef osqp < handle
             if (isempty(A))
                 m = 0;
             else
+                assert(size(A, 2) == n, 'Incorrect dimension of A');
                 m = size(A, 1);
             end
 
