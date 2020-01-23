@@ -35,7 +35,7 @@ fprintf(srcFile, '#include \"types.h\"\n');
 fprintf(srcFile, '#include \"qdldl_interface.h\"\n\n');
 
 % Write data structure
-write_data_src(srcFile, work.data, prefix);
+write_data_src(srcFile, work.data, embedded_flag, prefix);
 write_data_inc(incFile, work.data, prefix);
 
 % Write settings structure
@@ -72,16 +72,24 @@ end
 
 
 
-function write_data_src( f, data, prefix )
+function write_data_src( f, data, embedded_flag, prefix )
 %WRITE_DATA_SRC Write data structure to file.
 
 fprintf(f, '// Define data structure\n');
 
-% Define matrix P
-write_mat(f, data.P, strcat([prefix, 'Pdata']));
+if embedded_flag
+    % Define matrix P
+    write_mat_const(f, data.P, strcat([prefix, 'Pdata']));
 
-% Define matrix A
-write_mat(f, data.A, strcat([prefix, 'Adata']));
+    % Define matrix A
+    write_mat_const(f, data.A, strcat([prefix, 'Adata']));
+else
+    % Define matrix P
+    write_mat(f, data.P, strcat([prefix, 'Pdata']));
+
+    % Define matrix A
+    write_mat(f, data.A, strcat([prefix, 'Adata']));
+end
 
 % Define other data vectors
 write_vec(f, data.q, strcat([prefix, 'qdata']), 'c_float');
@@ -407,6 +415,23 @@ fprintf(f, '};\n');
 
 end
 
+function write_vec_const(f, vec, name, vec_type)
+%WRITE_VEC Write vector to file.
+
+fprintf(f, 'const %s %s[%d] = {\n', vec_type, name, length(vec));
+
+% Write vector elements
+for i = 1 : length(vec)
+    if strcmp(vec_type, 'c_float')
+        fprintf(f, '(c_float)%.20f,\n', vec(i));
+    else
+        fprintf(f, '%i,\n', vec(i));
+    end
+end
+fprintf(f, '};\n');
+
+end
+
 function write_vec_extern(f, vec, name, vec_type)
 %WRITE_VEC_EXTERN Write vector prototype to file.
 
@@ -429,6 +454,24 @@ fprintf(f, '%d, ', mat.n);
 fprintf(f, '%s_p, ', name);
 fprintf(f, '%s_i, ', name);
 fprintf(f, '%s_x, ', name);
+fprintf(f, '%d};\n', mat.nz);
+
+end
+
+function write_mat_const(f, mat, name)
+%WRITE_MAT_CONST Write matrix in CSC format to file.
+
+write_vec_const(f, mat.i, [name, '_i'], 'c_int');
+write_vec_const(f, mat.p, [name, '_p'], 'c_int');
+write_vec_const(f, mat.x, [name, '_x'], 'c_float');
+
+fprintf(f, 'csc %s = {', name);
+fprintf(f, '%d, ', mat.nzmax);
+fprintf(f, '%d, ', mat.m);
+fprintf(f, '%d, ', mat.n);
+fprintf(f, '(c_int*)%s_p, ', name);
+fprintf(f, '(c_int*)%s_i, ', name);
+fprintf(f, '(c_float*)%s_x, ', name);
 fprintf(f, '%d};\n', mat.nz);
 
 end
