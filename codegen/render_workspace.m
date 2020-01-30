@@ -206,8 +206,8 @@ fprintf(f, '// Define linsys_solver structure\n');
 write_mat(f, linsys_solver.L,             strcat([prefix, 'linsys_solver_L']))
 write_vec(f, linsys_solver.Dinv,          strcat([prefix, 'linsys_solver_Dinv']),        'c_float')
 write_vec(f, linsys_solver.P,             strcat([prefix, 'linsys_solver_P']),           'c_int')
-fprintf(f, strcat(['c_float ', prefix, 'linsys_solver_bp[%d];\n']),  length(linsys_solver.bp));
-fprintf(f, strcat(['c_float ', prefix, 'linsys_solver_sol[%d];\n']), length(linsys_solver.sol));
+fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_bp[%d];\n']),  length(linsys_solver.bp));
+fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_sol[%d];\n']), length(linsys_solver.sol));
 write_vec(f, linsys_solver.rho_inv_vec,   strcat([prefix, 'linsys_solver_rho_inv_vec']), 'c_float')
 
 if embedded_flag ~= 1
@@ -281,8 +281,8 @@ function write_solution_src( f, n, m, prefix )
 %WRITE_SOLUTION_SRC Preallocate solution vectors
 
 fprintf(f, '// Define solution\n');
-fprintf(f, strcat(['c_float ', prefix, 'xsolution[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'ysolution[%d];\n\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'xsolution[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'ysolution[%d];\n\n']), m);
 fprintf(f, strcat(['OSQPSolution ', prefix, 'solution = {', prefix, 'xsolution, ', prefix, 'ysolution};\n\n']));
 
 end
@@ -324,23 +324,23 @@ write_vec(f, rho_vectors.rho_inv_vec, strcat([prefix, 'work_rho_inv_vec']), 'c_f
 if embedded_flag ~= 1
     write_vec(f, rho_vectors.constr_type, strcat([prefix, 'work_constr_type']), 'c_int');
 end
-fprintf(f, strcat(['c_float ', prefix, 'work_x[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_y[%d];\n']), m);
-fprintf(f, strcat(['c_float ', prefix, 'work_z[%d];\n']), m);
-fprintf(f, strcat(['c_float ', prefix, 'work_xz_tilde[%d];\n']), n+m);
-fprintf(f, strcat(['c_float ', prefix, 'work_x_prev[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_z_prev[%d];\n']), m);
-fprintf(f, strcat(['c_float ', prefix, 'work_Ax[%d];\n']), m);
-fprintf(f, strcat(['c_float ', prefix, 'work_Px[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_Aty[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_delta_y[%d];\n']), m);
-fprintf(f, strcat(['c_float ', prefix, 'work_Atdelta_y[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_delta_x[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_Pdelta_x[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_Adelta_x[%d];\n']), m);
-fprintf(f, strcat(['c_float ', prefix, 'work_D_temp[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_D_temp_A[%d];\n']), n);
-fprintf(f, strcat(['c_float ', prefix, 'work_E_temp[%d];\n\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_x[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_y[%d];\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_z[%d];\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_xz_tilde[%d];\n']), n+m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_x_prev[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_z_prev[%d];\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_Ax[%d];\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_Px[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_Aty[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_delta_y[%d];\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_Atdelta_y[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_delta_x[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_Pdelta_x[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_Adelta_x[%d];\n']), m);
+fprintf(f, strcat(['static c_float ', prefix, 'work_D_temp[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_D_temp_A[%d];\n']), n);
+fprintf(f, strcat(['static c_float ', prefix, 'work_E_temp[%d];\n\n']), m);
 
 fprintf(f, strcat(['OSQPWorkspace ', prefix, 'workspace = {\n']));
 fprintf(f, strcat(['&', prefix, 'data, (LinSysSolver *)&', prefix, 'linsys_solver,\n']));
