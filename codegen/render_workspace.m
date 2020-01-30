@@ -43,7 +43,7 @@ write_settings_src(srcFile, work.settings, embedded_flag, prefix);
 write_settings_inc(incFile, work.settings, embedded_flag, prefix);
 
 % Write scaling structure
-write_scaling_src(srcFile, work.scaling, prefix);
+write_scaling_src(srcFile, work.scaling, embedded_flag, prefix);
 write_scaling_inc(incFile, work.scaling, prefix);
 
 % Write linsys_solver structure
@@ -168,21 +168,33 @@ fprintf(f, strcat(['extern OSQPSettings ', prefix, 'settings;\n\n']));
 end
 
 
-function write_scaling_src( f, scaling, prefix )
+function write_scaling_src( f, scaling, embedded_flag, prefix )
 %WRITE_SCALING_SRC Write scaling structure to file.
 
 fprintf(f, '// Define scaling structure\n');
 
 if ~isempty(scaling)
-    write_vec(f, scaling.D,    strcat([prefix, 'Dscaling']),    'c_float');
-    write_vec(f, scaling.Dinv, strcat([prefix, 'Dinvscaling']), 'c_float');
-    write_vec(f, scaling.E,    strcat([prefix, 'Escaling']),    'c_float');
-    write_vec(f, scaling.Einv, strcat([prefix, 'Einvscaling']), 'c_float');
-    fprintf(f, strcat(['OSQPScaling ', prefix, 'scaling = {']));
-    fprintf(f, '(c_float)%.20f, ', scaling.c);
-    fprintf(f, strcat([prefix, 'Dscaling, ', prefix, 'Escaling, ']));
-    fprintf(f, '(c_float)%.20f, ', scaling.cinv);
-    fprintf(f, strcat([prefix, 'Dinvscaling, ', prefix, 'Einvscaling};\n\n']));
+    if embedded_flag
+        write_vec_const(f, scaling.D,    strcat([prefix, 'Dscaling']),    'c_float');
+        write_vec_const(f, scaling.Dinv, strcat([prefix, 'Dinvscaling']), 'c_float');
+        write_vec_const(f, scaling.E,    strcat([prefix, 'Escaling']),    'c_float');
+        write_vec_const(f, scaling.Einv, strcat([prefix, 'Einvscaling']), 'c_float');
+        fprintf(f, strcat(['OSQPScaling ', prefix, 'scaling = {']));
+        fprintf(f, '(c_float)%.20f, ', scaling.c);
+        fprintf(f, strcat(['(c_float*)', prefix, 'Dscaling, ', '(c_float*)', prefix, 'Escaling, ']));
+        fprintf(f, '(c_float)%.20f, ', scaling.cinv);
+        fprintf(f, strcat(['(c_float*)', prefix, 'Dinvscaling, ', '(c_float*)', prefix, 'Einvscaling};\n\n']));
+    else
+        write_vec(f, scaling.D,    strcat([prefix, 'Dscaling']),    'c_float');
+        write_vec(f, scaling.Dinv, strcat([prefix, 'Dinvscaling']), 'c_float');
+        write_vec(f, scaling.E,    strcat([prefix, 'Escaling']),    'c_float');
+        write_vec(f, scaling.Einv, strcat([prefix, 'Einvscaling']), 'c_float');
+        fprintf(f, strcat(['OSQPScaling ', prefix, 'scaling = {']));
+        fprintf(f, '(c_float)%.20f, ', scaling.c);
+        fprintf(f, strcat([prefix, 'Dscaling, ', prefix, 'Escaling, ']));
+        fprintf(f, '(c_float)%.20f, ', scaling.cinv);
+        fprintf(f, strcat([prefix, 'Dinvscaling, ', prefix, 'Einvscaling};\n\n']));
+    end
 else
     fprintf(f, strcat(['OSQPScaling ', prefix, 'scaling;\n\n']));
 end
@@ -211,12 +223,21 @@ function write_linsys_solver_src( f, linsys_solver, embedded_flag, prefix )
 %WRITE_LINSYS_SOLVER_SRC Write linsys_solver structure to file.
 
 fprintf(f, '// Define linsys_solver structure\n');
-write_mat(f, linsys_solver.L,             strcat([prefix, 'linsys_solver_L']))
-write_vec(f, linsys_solver.Dinv,          strcat([prefix, 'linsys_solver_Dinv']),        'c_float')
-write_vec(f, linsys_solver.P,             strcat([prefix, 'linsys_solver_P']),           'c_int')
-fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_bp[%d];\n']),  length(linsys_solver.bp));
-fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_sol[%d];\n']), length(linsys_solver.sol));
-write_vec(f, linsys_solver.rho_inv_vec,   strcat([prefix, 'linsys_solver_rho_inv_vec']), 'c_float')
+if embedded_flag
+    write_mat_const(f, linsys_solver.L,             strcat([prefix, 'linsys_solver_L']))
+    write_vec_const(f, linsys_solver.Dinv,          strcat([prefix, 'linsys_solver_Dinv']),        'c_float')
+    write_vec_const(f, linsys_solver.P,             strcat([prefix, 'linsys_solver_P']),           'c_int')
+    fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_bp[%d];\n']),  length(linsys_solver.bp));
+    fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_sol[%d];\n']), length(linsys_solver.sol));
+    write_vec(f, linsys_solver.rho_inv_vec,   strcat([prefix, 'linsys_solver_rho_inv_vec']), 'c_float')
+else
+    write_mat(f, linsys_solver.L,             strcat([prefix, 'linsys_solver_L']))
+    write_vec(f, linsys_solver.Dinv,          strcat([prefix, 'linsys_solver_Dinv']),        'c_float')
+    write_vec(f, linsys_solver.P,             strcat([prefix, 'linsys_solver_P']),           'c_int')
+    fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_bp[%d];\n']),  length(linsys_solver.bp));
+    fprintf(f, strcat(['static c_float ', prefix, 'linsys_solver_sol[%d];\n']), length(linsys_solver.sol));
+    write_vec(f, linsys_solver.rho_inv_vec,   strcat([prefix, 'linsys_solver_rho_inv_vec']), 'c_float')
+end
 
 if embedded_flag ~= 1
     write_vec(f, linsys_solver.Pdiag_idx, strcat([prefix, 'linsys_solver_Pdiag_idx']),    'c_int');
@@ -239,7 +260,7 @@ if embedded_flag ~= 1
     fprintf(f, strcat(['&update_linsys_solver_matrices_qdldl, &update_linsys_solver_rho_vec_qdldl, ']));
 end
 
-fprintf(f, strcat(['&', prefix, 'linsys_solver_L, ', prefix, 'linsys_solver_Dinv, ', prefix, 'linsys_solver_P, ', prefix, 'linsys_solver_bp, ', prefix, 'linsys_solver_sol, ', prefix, 'linsys_solver_rho_inv_vec, ']));
+fprintf(f, strcat(['&', prefix, 'linsys_solver_L, ', '(c_float*)', prefix, 'linsys_solver_Dinv, ', '(c_int*)', prefix, 'linsys_solver_P, ', prefix, 'linsys_solver_bp, ', prefix, 'linsys_solver_sol, ', prefix, 'linsys_solver_rho_inv_vec, ']));
 fprintf(f, '(c_float)%.20f, ',  linsys_solver.sigma);
 fprintf(f, '%d, ',              linsys_solver.n);
 fprintf(f, '%d, ',              linsys_solver.m);
