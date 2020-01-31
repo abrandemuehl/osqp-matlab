@@ -205,6 +205,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     }
 
+    if (!strcmp("update_max_iter", cmd)) {
+      const int max_iter = (int)(mxGetScalar(prhs[1]));
+      osqp_update_max_iter(&workspace, max_iter);
+      return;
+    }
 
     // update linear cost
     if (!strcmp("update_lin_cost", cmd)) {
